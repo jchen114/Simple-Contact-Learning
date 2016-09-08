@@ -17,8 +17,8 @@ public:
 
 	void CollisionDetectionUpdate(std::vector<CollideeObject> objects);
 
-	btScalar m_springConstant = 7.0f;
-	btScalar m_dampingConstant = 1.0f;
+	btScalar m_springConstant = 25.0f;
+	btScalar m_dampingConstant = 2.5f;
 	btScalar m_friction;
 	int m_id;
 
@@ -26,6 +26,11 @@ public:
 	void DrawInfo();
 
 private:
+
+	void CheckForCollision(std::vector<CollideeObject> objects);
+	void ManageCollision(std::vector<CollideeObject> objects);
+
+	CollideeShapeType m_shapeInCollision;
 
 	btVector3 m_vertexPos;
 	btVector3 m_vertexVel;
@@ -37,6 +42,8 @@ private:
 	btVector3 m_newOffset;
 	btScalar m_distanceFromCOM;
 	btScalar m_orientation;
+
+	GameObject *m_contactObject;
 
 	btVector3 m_springForce = btVector3(0.0f, 0.0f, 0.0f);
 	btVector3 m_dampingForce = btVector3(0.0f, 0.0f, 0.0f);

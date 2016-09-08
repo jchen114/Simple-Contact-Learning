@@ -101,7 +101,7 @@ void ContactLearningApp::CreateBodies() {
 	// Test Collision sets
 	GameObject *feelerObject = CreateGameObject(new btBox2dShape(btVector3(1.5f, 0.5f, 0.0f)), 1.0f, btVector3(1.0f, 1.0f, 0.0f), btVector3(0.0f, 2.0f, 0.0f));
 
-	ContactManager::GetInstance().AddObjectForCollision(feelerObject, 10);
+	ContactManager::GetInstance().AddObjectForCollision(feelerObject, 15);
 	ContactManager::GetInstance().AddObjectToCollideWith(m_ground);
 	//GameObject *testObj = CreateGameObject(new btBox2dShape(btVector3(1, 1, 0)), 1, btVector3(1,0,0), btVector3(-2,5,0));
 
@@ -113,6 +113,9 @@ void ContactLearningApp::CreateBodies() {
 void ContactLearningApp::MakeBump(const float radius, const btVector3 &position, const btVector3 &color) {
 
 	GameObject *bump = CreateGameObject(new btSphereShape(radius), 0.0f, color, position);
+
+	ContactManager::GetInstance().AddObjectToCollideWith(bump);
+
 }
 
 #pragma endregion UTILS

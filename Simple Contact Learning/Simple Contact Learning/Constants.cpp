@@ -79,3 +79,9 @@ void DisplayText(float x, float y, const btVector3 &color, const char *string) {
 float AngleBetweenVectors(const btVector3 &v1, const btVector3 &v2) {
 	return atan2(v2.y(), v2.x()) - atan2(v1.y(), v1.x());
 }
+
+btVector3 Vector2DWithAngle(float angleRadians, const btVector3 &vector) {
+
+	return vector.rotate(btVector3(0,0,1), angleRadians);
+
+}

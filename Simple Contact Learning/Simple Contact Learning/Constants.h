@@ -59,3 +59,4 @@ protected:
 void DrawCircle(const float &radius);
 void DisplayText(float x, float y, const btVector3 &color, const char *string);
 float AngleBetweenVectors(const btVector3 &v1, const btVector3 &v2);
+btVector3 Vector2DWithAngle(float angleRadians, const btVector3 &vector);

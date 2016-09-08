@@ -39,6 +39,49 @@ void ColliderVertex::CollisionDetectionUpdate(std::vector<CollideeObject> object
 	m_vertexPos = COM + m_newOffset;
 	m_vertexVel = m_object->GetRigidBody()->getVelocityInLocalPoint(m_newOffset);
 
+	if (m_state == IN_COLLISION) {
+		ManageCollision(objects);
+	}
+	else {
+		CheckForCollision(objects);
+	}
+
+}
+
+void ColliderVertex::ManageCollision(std::vector<CollideeObject> objects) {
+
+	for (auto it = objects.begin(); it != objects.end(); it++) {
+		CollideeObject object = *it;
+
+		if (object.m_object == m_contactObject) {
+			
+			switch (object.m_shapeType) {
+			case COLLIDEE_BOX_SHAPE: {
+				//  Only implementing TOP plane for now..
+				auto planes = object.GetPlanes();
+				HandleBoxCollision(planes);
+			}
+				break;
+			case COLLIDEE_BOX_2D_SHAPE: {
+				auto planes = object.GetPlanes();
+				Handle2DBoxCollision(planes);
+			}
+				break;
+			case COLLIDEE_CIRCLE_SHAPE: {
+				HandleCircleCollision(object.GetCenter(), object.GetRadius());
+			}
+				break;
+			default:
+				break;
+			}
+
+		}
+	}
+
+}
+
+void ColliderVertex::CheckForCollision(std::vector<CollideeObject> objects) {
+	
 	for (auto it = objects.begin(); it != objects.end(); it++) {
 		CollideeObject object = *it;
 		switch (object.m_shapeType)
@@ -61,9 +104,13 @@ void ColliderVertex::CollisionDetectionUpdate(std::vector<CollideeObject> object
 		default:
 			break;
 		}
-
+		if (m_state == IN_COLLISION) {
+			m_contactObject = object.m_object;
+			break;
+		}
 	}
 }
+
 
 #pragma region HANDLERS
 
@@ -81,12 +128,11 @@ void ColliderVertex::HandleBoxCollision(std::vector<std::pair<btVector3, btVecto
 	{
 		if (m_state == NO_COLLISION) {
 			//printf("%d, Collision happened!\n", m_id);
-			m_state = IN_COLLISION;
 			m_collisionPoint = m_previousPoint;
 		}
+		m_state = IN_COLLISION;
 		// Spring force in direction towards penetration point
 		m_springForce = m_collisionPoint - m_vertexPos;
-		m_springForce = m_springForce.normalize();
 		m_springForce = m_springForce * m_springConstant;
 
 		m_dampingForce = m_vertexVel * m_dampingConstant;
@@ -108,6 +154,7 @@ void ColliderVertex::HandleBoxCollision(std::vector<std::pair<btVector3, btVecto
 			m_collisionPoint.setX(m_vertexPos.x() + delta_x);
 		}
 		m_object->GetRigidBody()->applyForce(m_reactionForce, m_newOffset);
+		m_shapeInCollision = COLLIDEE_BOX_SHAPE;
 	} else {
 		m_state = NO_COLLISION;
 	}
@@ -122,7 +169,8 @@ void ColliderVertex::Handle2DBoxCollision(std::vector<std::pair<btVector3, btVec
 	btVector3 v2 = top_plane.second;
 
 	// top plane... Assume horizontal
-	if (m_vertexPos.x() > v1.x() && m_vertexPos.x() < v2.x()
+	if (m_vertexPos.x() > v1.x() 
+		&& m_vertexPos.x() < v2.x()
 		&& m_vertexPos.y() < v1.y())
 	{
 		if (m_state == NO_COLLISION) {
@@ -132,7 +180,7 @@ void ColliderVertex::Handle2DBoxCollision(std::vector<std::pair<btVector3, btVec
 		}
 		// Spring force in direction towards penetration point
 		m_springForce = m_collisionPoint - m_vertexPos;
-		m_springForce = m_springForce.normalize();
+		//m_springForce = m_springForce.normalize();
 		m_springForce = m_springForce * m_springConstant;
 
 		m_dampingForce = m_vertexVel * m_dampingConstant;
@@ -154,6 +202,7 @@ void ColliderVertex::Handle2DBoxCollision(std::vector<std::pair<btVector3, btVec
 			m_collisionPoint.setX(m_vertexPos.x() + delta_x);
 		}
 		m_object->GetRigidBody()->applyForce(m_reactionForce, m_newOffset);
+		m_shapeInCollision = COLLIDEE_BOX_2D_SHAPE;
 	}
 	else {
 		m_state = NO_COLLISION;
@@ -167,6 +216,7 @@ void ColliderVertex::HandleCircleCollision(const btVector3 &center, float radius
 	
 	
 	if (m_vertexPos.distance(center) <= radius) {
+
 		if (m_state == NO_COLLISION) {
 			//printf("%d, Collision happened!\n", m_id);
 			m_state = IN_COLLISION;
@@ -174,26 +224,54 @@ void ColliderVertex::HandleCircleCollision(const btVector3 &center, float radius
 		}
 		// Spring force in direction towards penetration point
 		m_springForce = m_collisionPoint - m_vertexPos;
-		m_springForce = m_springForce.normalize();
-		m_springForce = m_springForce * m_springConstant;
+		m_springForce = m_springForce * m_springConstant * 20;
 
-		m_dampingForce = m_vertexVel * m_dampingConstant;
+		m_dampingForce = m_vertexVel * m_dampingConstant * 2;
 
 		// Check reaction force for negative.
 		m_reactionForce = m_springForce - m_dampingForce;
-		btVector3 collisionVector = m_collisionPoint - center;
-		btScalar angle = collisionVector.angle(m_reactionForce);
+		btVector3 vertexVector = m_vertexPos - center;
+		btScalar angle = AngleBetweenVectors(vertexVector, m_reactionForce);
 		// If Reaction force somehow pulls it towards the center.
-		if (angle > PI / 2 && angle <= 3 * PI / 2) {
+		if (angle > - PI / 2 && angle < PI / 2) {
+			// Do nothing
+		}
+		else {
 			m_reactionForce = btVector3(0, 0, 0);
 		}
-		// Friction cone
-		if (angle < m_minAngle) {
+		//// Friction cone
+		//float angleToRotate;
+		//bool changeCollisionPoint = false;
+		//if (angle < m_minAngle) {
+		//	angleToRotate = m_minAngle;
+		//	changeCollisionPoint = true;
+		//}
+		//if (angle > m_maxAngle) {
+		//	angleToRotate = m_maxAngle;
+		//	changeCollisionPoint = true;
+		//}
 
-		}
-		if (angle > m_maxAngle) {
+		//if (changeCollisionPoint) {
+		//	btVector3 dir = Vector2DWithAngle(angleToRotate, vertexVector);
+		//	dir = dir.normalize();
+		//	dir *= m_reactionForce.norm();
 
-		}
+		//	m_reactionForce = dir;
+
+		//	btVector3 unitVertex = vertexVector.normalize();
+		//	btVector3 radiusVertex = unitVertex * radius;
+		//	btVector3 residual = radiusVertex - vertexVector;
+		//	btVector3 vectorToAdd = Vector2DWithAngle(angleToRotate, residual);
+		//	btVector3 resultingVector = vertexVector + vectorToAdd;
+
+		//	m_collisionPoint = center + resultingVector;
+
+		//}
+		m_object->GetRigidBody()->applyForce(m_reactionForce, m_newOffset);
+		m_shapeInCollision = COLLIDEE_CIRCLE_SHAPE;
+	}
+	else {
+		m_state = NO_COLLISION;
 	}
 
 	m_previousPoint = m_vertexPos;
@@ -216,7 +294,7 @@ void ColliderVertex::DrawInfo() {
 	glTranslatef(m_offset.x(), m_offset.y(), 0.1f);
 
 	glColor3f(1.0f, 0.0f, 0.0f);
-	DrawCircle(0.1f);
+	DrawCircle(0.05f);
 
 	//char buf[200];
 	//sprintf_s(buf, "id: %d, P: (%3.3f, %3.3f, %3.3f), V:(%3.3f, %3.3f, %3.3f)", id, m_vertexPos.x(), m_vertexPos.y(), m_vertexPos.z(), m_vertexVel.x(), m_vertexVel.y(), m_vertexVel.z());
@@ -232,11 +310,29 @@ void ColliderVertex::DrawForce() {
 	if (m_state == IN_COLLISION) {
 		
 		btVector3 COM = m_object->GetCOMPosition();
-
 		glPushMatrix();
 		glTranslatef(COM.x(), COM.y(), COM.z());
 
-		glColor3f(0.0f, 0.0f, 1.0f);
+		switch (m_shapeInCollision)
+		{
+
+		case COLLIDEE_BOX_SHAPE: {
+			//  Only implementing TOP plane for now..
+			glColor3f(0.0f, 0.0f, 1.0f);
+		}
+			break;
+		case COLLIDEE_BOX_2D_SHAPE: {
+
+		}
+			break;
+		case COLLIDEE_CIRCLE_SHAPE: {
+			glColor3f(1.0f, 0.0f, 0.0f);
+		}
+			break;
+		default:
+			break;
+		}
+
 		glLineWidth(3.0f);
 		glBegin(GL_LINES);
 		glVertex3f(m_newOffset.x(), m_newOffset.y(), 0.1);

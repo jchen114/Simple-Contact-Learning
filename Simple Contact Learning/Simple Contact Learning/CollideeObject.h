@@ -7,7 +7,7 @@ typedef enum {
 	COLLIDEE_BOX_2D_SHAPE,
 	COLLIDEE_BOX_SHAPE,
 	COLLIDEE_CIRCLE_SHAPE
-} ColliderShapeType;
+} CollideeShapeType;
 
 class CollideeObject
 {
@@ -16,7 +16,7 @@ public:
 	~CollideeObject();
 
 	void *m_userPointer;
-	ColliderShapeType m_shapeType;
+	CollideeShapeType m_shapeType;
 	GameObject *m_object;
 
 	void UpdateCollidingPlane();
