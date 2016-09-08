@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="Windows-1252"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\jchen114\Documents\Research\Simple Contact Learning\Dependencies\bullet3-2.83.7\examples\MultiBody\Pendulum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\jchen114\Documents\Research\Simple Contact Learning\Dependencies\bullet3-2.83.7\test\BulletDynamics\pendulum\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{1859E81F-236A-4AD4-91A0-F69F9F69873E}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
