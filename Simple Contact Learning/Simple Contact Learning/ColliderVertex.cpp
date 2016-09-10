@@ -222,11 +222,12 @@ void ColliderVertex::HandleCircleCollision(const btVector3 &center, float radius
 			m_state = IN_COLLISION;
 			m_collisionPoint = m_previousPoint;
 		}
+
 		// Spring force in direction towards penetration point
 		m_springForce = m_collisionPoint - m_vertexPos;
-		m_springForce = m_springForce * m_springConstant * 20;
+		m_springForce = m_springForce * m_springConstant;
 
-		m_dampingForce = m_vertexVel * m_dampingConstant * 2;
+		m_dampingForce = m_vertexVel * m_dampingConstant;
 
 		// Check reaction force for negative.
 		m_reactionForce = m_springForce - m_dampingForce;
@@ -239,34 +240,33 @@ void ColliderVertex::HandleCircleCollision(const btVector3 &center, float radius
 		else {
 			m_reactionForce = btVector3(0, 0, 0);
 		}
-		//// Friction cone
-		//float angleToRotate;
-		//bool changeCollisionPoint = false;
-		//if (angle < m_minAngle) {
-		//	angleToRotate = m_minAngle;
-		//	changeCollisionPoint = true;
-		//}
-		//if (angle > m_maxAngle) {
-		//	angleToRotate = m_maxAngle;
-		//	changeCollisionPoint = true;
-		//}
+		// Friction cone
+		float angleToRotate;
+		bool changeCollisionPoint = false;
+		if (angle < m_minAngle) {
+			angleToRotate = m_minAngle;
+			changeCollisionPoint = true;
+		}
+		if (angle > m_maxAngle) {
+			angleToRotate = m_maxAngle;
+			changeCollisionPoint = true;
+		}
 
-		//if (changeCollisionPoint) {
-		//	btVector3 dir = Vector2DWithAngle(angleToRotate, vertexVector);
-		//	dir = dir.normalize();
-		//	dir *= m_reactionForce.norm();
+		if (changeCollisionPoint) {
+			btVector3 dir = Vector2DWithAngle(angleToRotate, vertexVector);
+			dir = dir.normalize();
+			dir *= m_reactionForce.norm();
 
-		//	m_reactionForce = dir;
+			m_reactionForce = dir;
 
-		//	btVector3 unitVertex = vertexVector.normalize();
-		//	btVector3 radiusVertex = unitVertex * radius;
-		//	btVector3 residual = radiusVertex - vertexVector;
-		//	btVector3 vectorToAdd = Vector2DWithAngle(angleToRotate, residual);
-		//	btVector3 resultingVector = vertexVector + vectorToAdd;
+			float collisionAngle = AngleToRotateForCollision(angleToRotate, vertexVector, radius);
 
-		//	m_collisionPoint = center + resultingVector;
+			btVector3 collisionVector = Vector2DWithAngle(collisionAngle, vertexVector);
+			collisionVector.normalize() *= radius;
 
-		//}
+			m_collisionPoint = center + collisionVector;
+			changeCollisionPoint = false;
+		}
 		m_object->GetRigidBody()->applyForce(m_reactionForce, m_newOffset);
 		m_shapeInCollision = COLLIDEE_CIRCLE_SHAPE;
 	}
@@ -344,3 +344,12 @@ void ColliderVertex::DrawForce() {
 }
 
 #pragma endregion DRAWING
+
+float AngleToRotateForCollision(float angle, const btVector3 &vertexVector, float radius) {
+	
+	float numerator = sin(PI - angle) * vertexVector.norm();
+	float thetaq = asin(numerator / radius);
+	float angleToRotate = angle - thetaq;
+	return angleToRotate;
+
+}

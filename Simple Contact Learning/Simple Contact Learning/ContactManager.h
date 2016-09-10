@@ -65,16 +65,16 @@ struct ContactFilterCallback : public btOverlapFilterCallback
 		btCollisionObject *obj1 = (btCollisionObject *)proxy1->m_clientObject;
 		if (ContactManager::GetInstance().m_forCollision.find((GameObject *)obj0->getUserPointer()) != ContactManager::GetInstance().m_forCollision.end()
 			&& ContactManager::GetInstance().m_toCollideWith.find((GameObject *)obj1->getUserPointer()) != ContactManager::GetInstance().m_toCollideWith.end()) {
-			//printf("object 0 for collision object 1 to collide\n");
+			// This object is about to collide..
+			// obj0 is for collision
+			// obj1 is to collide with
 			return false;
-			//return true;
 		}
 		else if (
 			ContactManager::GetInstance().m_forCollision.find((GameObject *)obj1->getUserPointer()) != ContactManager::GetInstance().m_forCollision.end()
 			&& ContactManager::GetInstance().m_toCollideWith.find((GameObject *)obj0->getUserPointer()) != ContactManager::GetInstance().m_toCollideWith.end()) {
 			//printf("object 0 to collide object 1 for collision \n");
 			return false;
-			//return true;
 		}
 		return true;
 

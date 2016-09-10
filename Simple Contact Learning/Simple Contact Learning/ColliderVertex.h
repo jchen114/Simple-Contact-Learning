@@ -17,8 +17,8 @@ public:
 
 	void CollisionDetectionUpdate(std::vector<CollideeObject> objects);
 
-	btScalar m_springConstant = 25.0f;
-	btScalar m_dampingConstant = 2.5f;
+	btScalar m_springConstant = 45.0f;
+	btScalar m_dampingConstant = 4.5f;
 	btScalar m_friction;
 	int m_id;
 
@@ -57,7 +57,6 @@ private:
 	void Handle2DBoxCollision(std::vector<std::pair<btVector3, btVector3>> planes);
 	void HandleCircleCollision(const btVector3 &center, float radius);
 
-	
-
 };
 
+float AngleToRotateForCollision(float angle, const btVector3 &vertexVector, float radius);

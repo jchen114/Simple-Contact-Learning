@@ -69,6 +69,8 @@ void ContactLearningApp::InitializePhysics() {
 
 	// Test bump
 	MakeBump(0.3, btVector3(0, 0.5, 0), btVector3(0, 1, 0));
+
+	//MakeBump(0.3, btVector3(3.5, 0.5, 0), btVector3(0, 1, 0));
 }
 
 void ContactLearningApp::LoadTextures() {
@@ -88,24 +90,33 @@ void ContactLearningApp::LoadTextures() {
 
 }
 
-void ContactLearningApp::CreateGround() {
+void ContactLearningApp::CreateGround(const btVector3 &pos) {
 
 	// Create 3D ground.
-	m_ground = CreateGameObject(new btBoxShape(btVector3(200, 0.5f, 15)), 0, btVector3(1.0f, 1.0f, 1.0f));
-	//m_ground->GetShape()->setUserPointer(m_ground);
+	m_ground = CreateGameObject(new btBoxShape(btVector3(200, 0.5f, 15)), 0, btVector3(1.0f, 1.0f, 1.0f), pos);
+	ContactManager::GetInstance().AddObjectToCollideWith(m_ground);
 
 }
 
 void ContactLearningApp::CreateBodies() {
 
 	// Test Collision sets
-	GameObject *feelerObject = CreateGameObject(new btBox2dShape(btVector3(1.5f, 0.5f, 0.0f)), 1.0f, btVector3(1.0f, 1.0f, 0.0f), btVector3(0.0f, 2.0f, 0.0f));
-
+	GameObject *feelerObject = CreateGameObject(new btBox2dShape(btVector3(1.5f, 0.5f, 0.0f)), 1.0f, btVector3(1.0f, 1.0f, 0.0f), btVector3(-1.0f, 2.0f, 0.0f));
 	ContactManager::GetInstance().AddObjectForCollision(feelerObject, 15);
-	ContactManager::GetInstance().AddObjectToCollideWith(m_ground);
+	
 	//GameObject *testObj = CreateGameObject(new btBox2dShape(btVector3(1, 1, 0)), 1, btVector3(1,0,0), btVector3(-2,5,0));
 
+
+	//GameObject *feelerObject2 = CreateGameObject(new btBox2dShape(btVector3(1.5f, 0.5f, 0.0f)), 1.0f, btVector3(1.0f, 1.0f, 0.0f), btVector3(4.0f, 2.0f, 0.0f));
+	//ContactManager::GetInstance().AddObjectForCollision(feelerObject2, 15);
 }
+
+float ContactLearningApp::GetNoise(float mean, float variance) {
+
+}
+
+
+
 #pragma endregion INIT
 
 #pragma region UTILS

@@ -14,7 +14,7 @@ public:
 	virtual void ShutdownPhysics() override;
 
 	void LoadTextures();
-	void CreateGround();
+	void CreateGround(const btVector3 &pos = btVector3(0,0,0));
 	void CreateBodies();
 
 	void DrawShapeCallback(btScalar *transform, const btCollisionShape *shape, const btVector3 &color);
@@ -22,6 +22,9 @@ public:
 
 	void PostTickCallback(btScalar timestep);
 	void PreTickCallback(btScalar timestep);
+
+	void MakeBumps(int numberOfBumps);
+	float GetNoise(float mean, float variance);
 
 	void MakeBump(const float radius, const btVector3 &position, const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f));
 
