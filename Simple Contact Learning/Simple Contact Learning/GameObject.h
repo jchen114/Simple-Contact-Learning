@@ -91,7 +91,6 @@ public:
 			// Set mass to original mass
 			(*it)->GetRigidBody()->setMassProps((*it)->GetMass(), (*it)->GetInertia());
 			(*it)->GetRigidBody()->activate();
-			(*it)->GetRigidBody()->setRestitution(0);
 		}
 	}
 

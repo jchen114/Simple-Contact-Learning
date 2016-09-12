@@ -2,6 +2,8 @@
 #include "ContactLearningApp.h"
 #include <SOIL\src\SOIL.h>
 #include "ContactManager.h"
+#include <glui\glui.h>
+#include "TactileController.h"
 
 
 using namespace std::placeholders;
@@ -63,15 +65,44 @@ void ContactLearningApp::InitializePhysics() {
 
 	LoadTextures();
 
-	CreateGround();
+	CreateGround(btVector3(200, 0, 0));
 
 	CreateBodies();
 
-	// Test bump
-	MakeBump(0.3, btVector3(0, 0.5, 0), btVector3(0, 1, 0));
+	SetupGUI();
 
-	//MakeBump(0.3, btVector3(3.5, 0.5, 0), btVector3(0, 1, 0));
+	m_controller = new TactileController(m_feeler, 2.5f);
+
+	// Test bump
+	//MakeBump(0.3, btVector3(0, 0.5, 0), btVector3(0, 1, 0));
+
 }
+
+void ContactLearningApp::Idle() {
+	BulletOpenGLApplication::Idle();
+}
+
+void ContactLearningApp::SetupGUI() {
+
+	GLUI_Master.set_glutIdleFunc(ContactLearningIdle);
+
+	m_glui_window = GLUI_Master.create_glui("Contact Learning Controls");
+	GLUI_Panel *parameters_panel = m_glui_window->add_panel("Parameters");
+	m_glui_window->add_spinner_to_panel(parameters_panel, "Contact Points", GLUI_SPINNER_INT, &m_no_contact_pts);
+	m_glui_window->add_spinner_to_panel(parameters_panel, "Mean", GLUI_SPINNER_FLOAT, &m_mean_distance);
+	m_glui_window->add_spinner_to_panel(parameters_panel, "Variance", GLUI_SPINNER_FLOAT, &m_variance);
+
+	m_glui_window->add_column(true);
+
+	GLUI_Panel *controls_panel = m_glui_window->add_panel("Controls");
+	m_glui_window->add_button_to_panel(controls_panel, "Start", NULL, (GLUI_Update_CB) StartButtonPressed);
+	m_glui_window->add_button_to_panel(controls_panel, "Pause", NULL, (GLUI_Update_CB) PauseButtonPressed);
+	m_glui_window->add_button_to_panel(controls_panel, "Stop", NULL, (GLUI_Update_CB) StopButtonPressed);
+
+	m_glui_window->set_main_gfx_window(m_main_window_id);
+
+}
+
 
 void ContactLearningApp::LoadTextures() {
 	// Load up the textures
@@ -101,23 +132,30 @@ void ContactLearningApp::CreateGround(const btVector3 &pos) {
 void ContactLearningApp::CreateBodies() {
 
 	// Test Collision sets
-	GameObject *feelerObject = CreateGameObject(new btBox2dShape(btVector3(1.5f, 0.5f, 0.0f)), 1.0f, btVector3(1.0f, 1.0f, 0.0f), btVector3(-1.0f, 2.0f, 0.0f));
-	ContactManager::GetInstance().AddObjectForCollision(feelerObject, 15);
-	
-	//GameObject *testObj = CreateGameObject(new btBox2dShape(btVector3(1, 1, 0)), 1, btVector3(1,0,0), btVector3(-2,5,0));
-
-
-	//GameObject *feelerObject2 = CreateGameObject(new btBox2dShape(btVector3(1.5f, 0.5f, 0.0f)), 1.0f, btVector3(1.0f, 1.0f, 0.0f), btVector3(4.0f, 2.0f, 0.0f));
-	//ContactManager::GetInstance().AddObjectForCollision(feelerObject2, 15);
-}
-
-float ContactLearningApp::GetNoise(float mean, float variance) {
+	GameObject *feeler = CreateGameObject(new btBox2dShape(btVector3(1.5f, 0.5f, 0.0f)), 1.0f, btVector3(1.0f, 1.0f, 0.0f), btVector3(5.0f, 2.0f, 0.0f));
+	m_oldPos = btVector3(0, 0, 0);
+	m_feeler = ContactManager::GetInstance().AddObjectForCollision(feeler, 15);
 
 }
-
 
 
 #pragma endregion INIT
+
+#pragma region INTERFACE 
+
+void ContactLearningApp::FeelerStart() {
+	m_controller->Start();
+}
+
+void ContactLearningApp::FeelerPause() {
+	m_controller->Pause();
+}
+
+void ContactLearningApp::FeelerStop() {
+	m_controller->Stop();
+}
+
+#pragma endregion INTERFACE
 
 #pragma region UTILS
 
@@ -127,6 +165,17 @@ void ContactLearningApp::MakeBump(const float radius, const btVector3 &position,
 
 	ContactManager::GetInstance().AddObjectToCollideWith(bump);
 
+}
+
+float ContactLearningApp::GetNoise(float mean, float variance) {
+	return 0.0f;
+}
+
+void ContactLearningApp::FollowFeelerCamera() {
+
+	float to_translate_x = m_feeler->m_object->GetCOMPosition().x() - m_oldPos.x();
+	m_cameraManager->TranslateCamera(RIGHT, to_translate_x);
+	m_oldPos = m_feeler->m_object->GetCOMPosition();
 }
 
 #pragma endregion UTILS
@@ -174,6 +223,9 @@ void ContactLearningApp::DrawShapeCallback(btScalar *transform, const btCollisio
 void ContactLearningApp::DrawCallback() {
 
 	ContactManager::GetInstance().DrawContactPoints();
+
+	FollowFeelerCamera();
+
 }
 
 void ContactLearningApp::PostTickCallback(btScalar timestep) {
@@ -200,6 +252,10 @@ void ContactLearningApp::PostTickCallback(btScalar timestep) {
 void ContactLearningApp::PreTickCallback(btScalar timestep) {
 
 	ContactManager::GetInstance().Update(timestep);
+	m_controller->StateLoop();
+
+	// Query to see if moved past the bumps..
+	// If moved past bumps, then create more bumps.
 
 }
 
@@ -211,4 +267,20 @@ void InternalPostTickCallback(btDynamicsWorld *world, btScalar timestep) {
 
 void InternalPreTickCallback(btDynamicsWorld *world, btScalar timestep) {
 	m_app->PreTickCallback(timestep);
+}
+
+static void ContactLearningIdle() {
+	m_app->Idle();
+}
+
+static void StartButtonPressed() {
+	m_app->FeelerStart();
+}
+
+static void PauseButtonPressed() {
+	m_app->FeelerPause();
+}
+
+static void StopButtonPressed() {
+	m_app->FeelerStop();
 }

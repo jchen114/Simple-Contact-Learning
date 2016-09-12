@@ -35,6 +35,7 @@
     <ClCompile Include="ColliderVertex.cpp">
       <Filter>App</Filter>
     </ClCompile>
+    <ClCompile Include="TactileController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -75,6 +76,7 @@
     <ClInclude Include="ColliderVertex.h">
       <Filter>App</Filter>
     </ClInclude>
+    <ClInclude Include="TactileController.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

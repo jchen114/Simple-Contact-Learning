@@ -27,8 +27,8 @@ public:
 	ContactManager();
 	~ContactManager();
 
-	void AddObjectForCollision(GameObject *object, int numberOfVertices = 2);
-	void AddObjectToCollideWith(GameObject *object);
+	ColliderObject *AddObjectForCollision(GameObject *object, int numberOfVertices = 2);
+	CollideeObject *AddObjectToCollideWith(GameObject *object);
 
 	int RemoveObjectForCollision(GameObject *object);
 	int RemoveObjectToCollideWith(GameObject *object);
