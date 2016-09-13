@@ -44,9 +44,11 @@ void TactileController::StateLoop() {
 			if (m_duration >= m_timeToRise * 1000) {
 				m_object_state = MOVE;
 				m_reset = true;
+				printf("X position s = %f\n", m_tactileObj->m_object->GetCOMPosition().x());
 			}
 			else {
 				Lift();
+				OrientateUpright();
 			}
 		}
 			break;
@@ -55,12 +57,13 @@ void TactileController::StateLoop() {
 				printf("MOVING...\n");
 				m_clock.reset();
 				m_reset = false;
-				Drop();
+				m_initPos = m_tactileObj->m_object->GetCOMPosition();
 			}
-			m_duration = m_clock.getTimeMilliseconds();
-			if (m_duration >= m_timeToMove * 1000) {
+			if (m_tactileObj->m_object->GetCOMPosition().x() - m_initPos.x() >= m_move_distance) {
 				m_object_state = DROP;
 				m_reset = true;
+				printf("X position e = %f\n", m_tactileObj->m_object->GetCOMPosition().x());
+				Drop();
 			}
 			else {
 				// Move right at constant velocity
@@ -104,18 +107,22 @@ void TactileController::Stop() {
 	
 }
 
+void TactileController::OrientateUpright() {
+	float orientation = m_tactileObj->m_object->GetOrientation();
+	m_tactileObj->m_object->ApplyTorque(btVector3(0, 0, m_kp * (0 - orientation) - m_kd * m_tactileObj->m_object->GetAngularVelocity()));
+}
+
 void TactileController::Lift() {
-
 	m_tactileObj->m_object->GetRigidBody()->setLinearVelocity(btVector3(0, 1, 0) * 2 / m_timeToRise);
-
 }
 
 void TactileController::Move() {
-	m_tactileObj->m_object->GetRigidBody()->setLinearVelocity(btVector3(1, 0, 0) * m_move_distance / m_timeToRise);
+	m_tactileObj->m_object->GetRigidBody()->setLinearVelocity(btVector3(1, 0, 0) * m_move_distance / m_timeToMove);
 }
 
 void TactileController::Drop() {
 	GameObject::ClearForces(std::vector < GameObject * > {m_tactileObj->m_object});
+	GameObject::ClearVelocities(std::vector < GameObject * > {m_tactileObj->m_object});
 }
 
 #pragma endregion CONTROLLER

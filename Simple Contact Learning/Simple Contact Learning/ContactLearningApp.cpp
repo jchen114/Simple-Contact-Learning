@@ -71,7 +71,15 @@ void ContactLearningApp::InitializePhysics() {
 
 	SetupGUI();
 
-	m_controller = new TactileController(m_feeler, 2.5f);
+	m_controller = new TactileController(m_feeler,m_mean_separation);
+
+	MakeBumps(
+		btVector3(m_feeler->m_object->GetCOMPosition().x() + SampleSeparation(m_mean_separation, m_variance), 0.5, 0.0f), 
+		5, 
+		0.4f, 
+		btVector3(0.0f, 1.0f, 0.0f), 
+		m_mean_separation, 
+		m_variance);
 
 	// Test bump
 	//MakeBump(0.3, btVector3(0, 0.5, 0), btVector3(0, 1, 0));
@@ -89,7 +97,7 @@ void ContactLearningApp::SetupGUI() {
 	m_glui_window = GLUI_Master.create_glui("Contact Learning Controls");
 	GLUI_Panel *parameters_panel = m_glui_window->add_panel("Parameters");
 	m_glui_window->add_spinner_to_panel(parameters_panel, "Contact Points", GLUI_SPINNER_INT, &m_no_contact_pts);
-	m_glui_window->add_spinner_to_panel(parameters_panel, "Mean", GLUI_SPINNER_FLOAT, &m_mean_distance);
+	m_glui_window->add_spinner_to_panel(parameters_panel, "Mean", GLUI_SPINNER_FLOAT, &m_mean_separation);
 	m_glui_window->add_spinner_to_panel(parameters_panel, "Variance", GLUI_SPINNER_FLOAT, &m_variance);
 
 	m_glui_window->add_column(true);
@@ -159,13 +167,40 @@ void ContactLearningApp::FeelerStop() {
 
 #pragma region UTILS
 
-void ContactLearningApp::MakeBump(const float radius, const btVector3 &position, const btVector3 &color) {
+GameObject* ContactLearningApp::MakeBump(const float radius, const btVector3 &position, const btVector3 &color) {
 
 	GameObject *bump = CreateGameObject(new btSphereShape(radius), 0.0f, color, position);
-
 	ContactManager::GetInstance().AddObjectToCollideWith(bump);
+	return bump;
 
 }
+
+void ContactLearningApp::MakeBumps(const btVector3 &start, int numBumps, float radius, const btVector3 &color, float separation, float sigma) {
+
+	for (int bump = 0; bump < numBumps; bump++) {
+		btVector3 bumpPos = start + btVector3(bump * separation, 0, 0);
+		bumps.push_back(MakeBump(radius, bumpPos, color));
+	}
+
+}
+
+void ContactLearningApp::ManageBumps() {
+
+	// Get the middle bump..
+	GameObject *bump = bumps.at(ceil(bumps.size() / 2));
+
+	// Check if feeler is past the bump..
+	if (m_feeler->m_object->GetCOMPosition().x() >= bump->GetCOMPosition().x()) {
+		printf("Recycle Bump\n");
+		GameObject *firstBump = bumps.front();
+		GameObject *lastBump = bumps.back();
+		firstBump->Reposition(btVector3(lastBump->GetCOMPosition().x() + SampleSeparation(m_mean_separation, m_variance), lastBump->GetCOMPosition().y(), 0.0f));
+		bumps.pop_front();
+		bumps.push_back(firstBump);
+	}
+
+}
+
 
 float ContactLearningApp::GetNoise(float mean, float variance) {
 	return 0.0f;
@@ -176,6 +211,11 @@ void ContactLearningApp::FollowFeelerCamera() {
 	float to_translate_x = m_feeler->m_object->GetCOMPosition().x() - m_oldPos.x();
 	m_cameraManager->TranslateCamera(RIGHT, to_translate_x);
 	m_oldPos = m_feeler->m_object->GetCOMPosition();
+}
+
+float ContactLearningApp::SampleSeparation(float separation, float variance) {
+	// TODO
+	return separation;
 }
 
 #pragma endregion UTILS
@@ -253,6 +293,8 @@ void ContactLearningApp::PreTickCallback(btScalar timestep) {
 
 	ContactManager::GetInstance().Update(timestep);
 	m_controller->StateLoop();
+
+	ManageBumps();
 
 	// Query to see if moved past the bumps..
 	// If moved past bumps, then create more bumps.

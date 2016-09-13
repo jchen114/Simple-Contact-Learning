@@ -1,5 +1,6 @@
 #pragma once
 #include "BulletOpenGLApplication.h"
+#include <deque>
 
 class GLUI;
 class TactileController;
@@ -31,7 +32,9 @@ public:
 
 	float GetNoise(float mean, float variance);
 
-	void MakeBump(const float radius, const btVector3 &position, const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f));
+	GameObject* MakeBump(const float radius, const btVector3 &position, const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f));
+	void MakeBumps(const btVector3 &start, int numBumps, float radius = 0.3f, const btVector3 &color = btVector3(1.0f, 1.0f, 1.0f), float separation = 2.0f, float sigma = 0.0f);
+	void ManageBumps();
 
 	void SetupGUI();
 
@@ -43,11 +46,13 @@ private:
 	ColliderObject *m_feeler;
 	GameObject *m_ground;
 	GLuint m_ground_texture;
-	std::vector<GameObject *> bumps;
+	std::deque<GameObject *> bumps;
 
 	int m_no_contact_pts = 15;
 	float m_variance = 1.0f;
-	float m_mean_distance = 5.0f;
+	float m_mean_separation = 7.0f;
+
+	float SampleSeparation(float separation, float variance);
 
 	btVector3 m_oldPos;
 

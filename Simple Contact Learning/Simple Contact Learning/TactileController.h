@@ -47,6 +47,7 @@ private:
 	CurrentObjectState m_object_state;
 	CurrentControllerState m_controller_state;
 
+	void OrientateUpright();
 	void Lift();
 	void Move();
 	void Drop();
@@ -54,6 +55,11 @@ private:
 	btClock m_clock;
 	bool m_reset = false;
 	unsigned long m_duration;
+
+	float m_kp = 30.0f;
+	float m_kd = 3.0f;
+
+	btVector3 m_initPos;
 
 };
 
