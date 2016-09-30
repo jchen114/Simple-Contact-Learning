@@ -1,6 +1,8 @@
 #pragma once
 #include "BulletOpenGLApplication.h"
 #include <deque>
+#include <random>
+#include <chrono>
 
 class GLUI;
 class TactileController;
@@ -43,6 +45,11 @@ public:
 	void FeelerStop();
 
 private:
+
+	
+	std::default_random_engine m_generator;
+	std::normal_distribution<double> m_distribution;
+
 	ColliderObject *m_feeler;
 	GameObject *m_ground;
 	GLuint m_ground_texture;
@@ -52,7 +59,8 @@ private:
 	float m_variance = 1.0f;
 	float m_mean_separation = 7.0f;
 
-	float SampleSeparation(float separation, float variance);
+	float SampleSeparation();
+	void SetSampleParams(float mean_sep, float var);
 
 	btVector3 m_oldPos;
 

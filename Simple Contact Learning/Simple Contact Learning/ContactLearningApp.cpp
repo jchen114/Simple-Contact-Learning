@@ -73,10 +73,12 @@ void ContactLearningApp::InitializePhysics() {
 
 	m_controller = new TactileController(m_feeler,m_mean_separation);
 
+	SetSampleParams(m_mean_separation, m_variance);
+
 	MakeBumps(
-		btVector3(m_feeler->m_object->GetCOMPosition().x() + SampleSeparation(m_mean_separation, m_variance), 0.5, 0.0f), 
+		btVector3(m_feeler->m_object->GetCOMPosition().x() + SampleSeparation(), 0.4, 0.0f), 
 		5, 
-		0.4f, 
+		0.22f, 
 		btVector3(0.0f, 1.0f, 0.0f), 
 		m_mean_separation, 
 		m_variance);
@@ -111,7 +113,6 @@ void ContactLearningApp::SetupGUI() {
 
 }
 
-
 void ContactLearningApp::LoadTextures() {
 	// Load up the textures
 	m_ground_texture = SOIL_load_OGL_texture
@@ -140,9 +141,9 @@ void ContactLearningApp::CreateGround(const btVector3 &pos) {
 void ContactLearningApp::CreateBodies() {
 
 	// Test Collision sets
-	GameObject *feeler = CreateGameObject(new btBox2dShape(btVector3(1.5f, 0.5f, 0.0f)), 1.0f, btVector3(1.0f, 1.0f, 0.0f), btVector3(5.0f, 2.0f, 0.0f));
+	GameObject *feeler = CreateGameObject(new btBox2dShape(btVector3(1.5f, 0.5f, 0.0f)), 0.4f, btVector3(1.0f, 1.0f, 0.0f), btVector3(5.0f, 2.0f, 0.0f));
 	m_oldPos = btVector3(0, 0, 0);
-	m_feeler = ContactManager::GetInstance().AddObjectForCollision(feeler, 15);
+	m_feeler = ContactManager::GetInstance().AddObjectForCollision(feeler, 25);
 
 }
 
@@ -194,7 +195,7 @@ void ContactLearningApp::ManageBumps() {
 		printf("Recycle Bump\n");
 		GameObject *firstBump = bumps.front();
 		GameObject *lastBump = bumps.back();
-		firstBump->Reposition(btVector3(lastBump->GetCOMPosition().x() + SampleSeparation(m_mean_separation, m_variance), lastBump->GetCOMPosition().y(), 0.0f));
+		firstBump->Reposition(btVector3(lastBump->GetCOMPosition().x() + SampleSeparation(), lastBump->GetCOMPosition().y(), 0.0f));
 		bumps.pop_front();
 		bumps.push_back(firstBump);
 	}
@@ -213,9 +214,22 @@ void ContactLearningApp::FollowFeelerCamera() {
 	m_oldPos = m_feeler->m_object->GetCOMPosition();
 }
 
-float ContactLearningApp::SampleSeparation(float separation, float variance) {
+float ContactLearningApp::SampleSeparation() {
 	// TODO
+	float separation = m_distribution(m_generator);
+
+	printf("separation = %f\n", separation);
+
 	return separation;
+}
+
+void ContactLearningApp::SetSampleParams(float mean_sep, float var) {
+
+	m_distribution = std::normal_distribution<double>(mean_sep, var);
+
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	m_generator = std::default_random_engine(seed);
+
 }
 
 #pragma endregion UTILS

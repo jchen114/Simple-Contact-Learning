@@ -69,6 +69,7 @@ void TactileController::StateLoop() {
 				// Move right at constant velocity
 				// Will have to apply a force on the body to keep it afloat?
 				Move();
+				OrientateUpright();
 			}
 		}
 			break;
