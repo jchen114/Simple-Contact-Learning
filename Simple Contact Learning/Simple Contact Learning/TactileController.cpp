@@ -82,8 +82,13 @@ void TactileController::StateLoop() {
 			}
 			m_duration = m_clock.getTimeMilliseconds();
 			if (m_duration >= m_timeToDrop * 1000) {
+				GatherState();
 				m_object_state = LIFT;
 				m_reset = true;
+			}
+			else {
+				// Gather data (?)
+				m_tactileObj->GetForcesOnVertexes();
 			}
 		}
 			break;
@@ -110,7 +115,12 @@ void TactileController::Stop() {
 
 void TactileController::OrientateUpright() {
 	float orientation = m_tactileObj->m_object->GetOrientation();
-	m_tactileObj->m_object->ApplyTorque(btVector3(0, 0, m_kp * (0 - orientation) - m_kd * m_tactileObj->m_object->GetAngularVelocity()));
+	btTransform COM_transform = m_tactileObj->m_object->GetRigidBody()->getCenterOfMassTransform();
+	btQuaternion toRotate;
+	toRotate = toRotate.getIdentity();
+	COM_transform.setRotation(toRotate.getIdentity());
+	//m_tactileObj->m_object->ApplyTorque(btVector3(0, 0, m_kp * (0 - orientation) - m_kd * m_tactileObj->m_object->GetAngularVelocity()));
+	m_tactileObj->m_object->GetRigidBody()->setCenterOfMassTransform(COM_transform);
 }
 
 void TactileController::Lift() {
@@ -132,6 +142,19 @@ void TactileController::Drop() {
 
 void TactileController::DistanceToMove(float distanceX) {
 	m_move_distance = distanceX;
+}
+
+void TactileController::GatherState() {
+	
+	std::vector<btVector3> vector_forces = m_tactileObj->GetForcesOnVertexes();
+
+	printf("Vector forces: ");
+	for (std::vector<btVector3>::iterator it = vector_forces.begin(); it != vector_forces.end(); ++it) {
+		printf("( %f, %f, %f), ", it->x(), it->y(), it->z());
+	}
+
+	printf("\n");
+
 }
 
 #pragma endregion INTERFACE

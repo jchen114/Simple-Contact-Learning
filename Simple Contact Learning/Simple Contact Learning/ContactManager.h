@@ -49,10 +49,10 @@ public:
 
 	bool m_beingUsed = false;
 
+
 private:
 
 	btOverlapFilterCallback *m_filterCallback;
-
 
 };
 

@@ -95,3 +95,17 @@ std::vector<btVector3> ColliderObject::GetVertexVelocitiesFor2DBox(btRigidBody *
 	};
 	return vertex_velocities;
 }
+
+std::vector<btVector3> ColliderObject::GetForcesOnVertexes() {
+
+	std::vector<btVector3> r_forces;
+
+	for (std::vector<ColliderVertex *>::iterator it = m_vertices.begin(); it != m_vertices.end(); ++it) {
+		ColliderVertex *v = *it;
+		btVector3 r_force = v->GetForce();
+		r_forces.push_back(r_force);
+	}
+
+	return r_forces;
+
+}

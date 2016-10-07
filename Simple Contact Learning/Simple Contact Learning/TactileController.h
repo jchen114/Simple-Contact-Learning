@@ -31,6 +31,8 @@ public:
 	void Pause();
 	void Start();
 
+	void GatherState();
+
 	~TactileController();
 
 private:

@@ -1,0 +1,3 @@
+[submodule "Dependencies/RL-Theano"]
+	path = Dependencies/RL-Theano
+	url = https://github.com/jchen114/RL-Theano.git

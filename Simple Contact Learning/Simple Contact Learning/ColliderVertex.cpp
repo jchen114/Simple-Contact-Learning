@@ -111,6 +111,10 @@ void ColliderVertex::CheckForCollision(std::vector<CollideeObject> objects) {
 	}
 }
 
+btVector3 ColliderVertex::GetForce() {
+	return m_reactionForce;
+}
+
 
 #pragma region HANDLERS
 

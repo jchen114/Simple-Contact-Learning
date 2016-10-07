@@ -34,6 +34,8 @@ public:
 	std::vector<ColliderVertex *> GetVertexPositionsFor2DBox(const btVector3 &halfSize, int numberOfVertices);
 	std::vector<btVector3> GetVertexVelocitiesFor2DBox(btRigidBody *body, const btVector3 &halfSize);
 
+	std::vector<btVector3> GetForcesOnVertexes();
+
 private:
 	void Initialize2DBox(int numberOfVertices);
 
