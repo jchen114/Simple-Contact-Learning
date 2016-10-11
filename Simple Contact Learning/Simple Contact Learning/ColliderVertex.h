@@ -25,6 +25,8 @@ public:
 	void DrawForce();
 	void DrawInfo();
 
+	btVector3 GetForce();
+
 private:
 
 	void CheckForCollision(std::vector<CollideeObject> objects);

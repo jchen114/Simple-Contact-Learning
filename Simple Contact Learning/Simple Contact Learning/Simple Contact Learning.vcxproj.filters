@@ -35,7 +35,18 @@
     <ClCompile Include="ColliderVertex.cpp">
       <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="TactileController.cpp" />
+    <ClCompile Include="TactileController.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="TheanoRLManager.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="Action.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="State.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -76,7 +87,18 @@
     <ClInclude Include="ColliderVertex.h">
       <Filter>App</Filter>
     </ClInclude>
-    <ClInclude Include="TactileController.h" />
+    <ClInclude Include="TactileController.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="TheanoRLManager.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="Action.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>App</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
