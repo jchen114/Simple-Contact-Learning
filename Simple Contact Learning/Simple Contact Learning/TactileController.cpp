@@ -110,7 +110,15 @@ void TactileController::Stop() {
 
 void TactileController::OrientateUpright() {
 	float orientation = m_tactileObj->m_object->GetOrientation();
-	m_tactileObj->m_object->ApplyTorque(btVector3(0, 0, m_kp * (0 - orientation) - m_kd * m_tactileObj->m_object->GetAngularVelocity()));
+
+	btRigidBody *body = m_tactileObj->m_object->GetRigidBody();
+	btTransform tr = body->getCenterOfMassTransform();
+	btQuaternion qt;
+	qt.setRotation(btVector3(0, 0, 1), 0.0f);
+	tr.setRotation(qt);
+	body->setCenterOfMassTransform(tr);
+
+	//m_tactileObj->m_object->ApplyTorque(btVector3(0, 0, m_kp * (0 - orientation) - m_kd * m_tactileObj->m_object->GetAngularVelocity()));
 }
 
 void TactileController::Lift() {
