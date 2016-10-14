@@ -39,6 +39,13 @@ void ContactLearningApp::ShutdownPhysics() {
 	delete m_pDispatcher;
 	delete m_pCollisionConfiguration;
 
+	delete m_glui_window;
+	delete m_controller;
+
+	// My objects
+	delete m_feeler;
+	delete m_ground;
+
 }
 
 void ContactLearningApp::InitializePhysics() {

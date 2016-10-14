@@ -39,13 +39,16 @@
       <Filter>App</Filter>
     </ClCompile>
     <ClCompile Include="Action.cpp">
-      <Filter>App\Learning</Filter>
+      <Filter>App\RL</Filter>
     </ClCompile>
     <ClCompile Include="Reward.cpp">
-      <Filter>App\Learning</Filter>
+      <Filter>App\RL</Filter>
     </ClCompile>
     <ClCompile Include="State.cpp">
-      <Filter>App\Learning</Filter>
+      <Filter>App\RL</Filter>
+    </ClCompile>
+    <ClCompile Include="LearningManager.cpp">
+      <Filter>App\Caffe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -91,13 +94,16 @@
       <Filter>App</Filter>
     </ClInclude>
     <ClInclude Include="Action.h">
-      <Filter>App\Learning</Filter>
+      <Filter>App\RL</Filter>
     </ClInclude>
     <ClInclude Include="Reward.h">
-      <Filter>App\Learning</Filter>
+      <Filter>App\RL</Filter>
     </ClInclude>
     <ClInclude Include="State.h">
-      <Filter>App\Learning</Filter>
+      <Filter>App\RL</Filter>
+    </ClInclude>
+    <ClInclude Include="LearningManager.h">
+      <Filter>App\Caffe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -119,7 +125,7 @@
     <Filter Include="App\Caffe">
       <UniqueIdentifier>{3c0867d7-01f2-4f98-a10e-4023664ab511}</UniqueIdentifier>
     </Filter>
-    <Filter Include="App\Learning">
+    <Filter Include="App\RL">
       <UniqueIdentifier>{0461217f-b130-4253-9ef4-221baada6d69}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
