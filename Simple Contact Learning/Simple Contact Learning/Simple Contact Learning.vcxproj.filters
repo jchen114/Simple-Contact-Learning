@@ -38,14 +38,14 @@
     <ClCompile Include="TactileController.cpp">
       <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="TheanoRLManager.cpp">
-      <Filter>App</Filter>
-    </ClCompile>
     <ClCompile Include="Action.cpp">
-      <Filter>App</Filter>
+      <Filter>App\Learning</Filter>
+    </ClCompile>
+    <ClCompile Include="Reward.cpp">
+      <Filter>App\Learning</Filter>
     </ClCompile>
     <ClCompile Include="State.cpp">
-      <Filter>App</Filter>
+      <Filter>App\Learning</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -90,14 +90,14 @@
     <ClInclude Include="TactileController.h">
       <Filter>App</Filter>
     </ClInclude>
-    <ClInclude Include="TheanoRLManager.h">
-      <Filter>App</Filter>
-    </ClInclude>
     <ClInclude Include="Action.h">
-      <Filter>App</Filter>
+      <Filter>App\Learning</Filter>
+    </ClInclude>
+    <ClInclude Include="Reward.h">
+      <Filter>App\Learning</Filter>
     </ClInclude>
     <ClInclude Include="State.h">
-      <Filter>App</Filter>
+      <Filter>App\Learning</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +115,12 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{95e3c399-d13f-4236-bd67-c400a21aa050}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Caffe">
+      <UniqueIdentifier>{3c0867d7-01f2-4f98-a10e-4023664ab511}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Learning">
+      <UniqueIdentifier>{0461217f-b130-4253-9ef4-221baada6d69}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
